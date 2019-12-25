@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.DatePicker
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Calendar.*
 
@@ -22,12 +23,23 @@ class MainActivity : AppCompatActivity() {
         val mMonth = c.get(MONTH);
         val mDay = c.get(DAY_OF_MONTH);
 
-       textViewSelectDob.setOnClickListener {
-           val dpd = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
-               textViewSelectDob.setText("%d-%d-%d".format(dayOfMonth, month, year))
-           }, mYear, mMonth, mDay)
-           dpd.show()
-       }
+        val dateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            c.set(Calendar.YEAR, year)
+            c.set(Calendar.MONTH, monthOfYear)
+            c.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+            val myFormat = "dd.MM.yyyy" // mention the format you need
+            val sdf = SimpleDateFormat(myFormat, Locale.US)
+            textViewSelectDob.text = sdf.format(c.time)
+
+        }
+
+        textViewSelectDob.setOnClickListener {
+            DatePickerDialog(this@MainActivity, dateSetListener,
+                c.get(Calendar.YEAR),
+                c.get(Calendar.MONTH),
+                c.get(Calendar.DAY_OF_MONTH)).show()
+        }
 
         buttonReset.setOnClickListener{
             textViewCalculatedInvestment.text = ""
@@ -40,8 +52,8 @@ class MainActivity : AppCompatActivity() {
             dob = c.get(Calendar.YEAR)
 
             textViewCalculatedAge.text = calcAge(dob).toString()
-            textViewCalculatedSaving.text  = basicSavings(calcAge(dob)).toString()
-            textViewCalculatedInvestment.text = calcInvestment().toString()
+            textViewCalculatedSaving.text  = "RM" + basicSavings(calcAge(dob)).toString()
+            textViewCalculatedInvestment.text = "RM" + calcInvestment().toString()
         }
 
     }
